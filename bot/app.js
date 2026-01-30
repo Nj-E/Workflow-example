@@ -14,17 +14,19 @@ const REPO_NAME = process.env.REPO_NAME;   // e.g. 'Auto-Humour-Bot'
 
 async function getBatchLedger(batchId) {
     try {
+        console.log(`[meme] Fetching ledger from ${REPO_OWNER}/${REPO_NAME} batches/${batchId}.json`);
         const { data } = await octokit.rest.repos.getContent({
             owner: REPO_OWNER,
             repo: REPO_NAME,
             path: `batches/${batchId}.json`,
+            ref: 'main',
         });
 
         // GitHub API returns content in base64
         const content = Buffer.from(data.content, 'base64').toString('utf-8');
         return { data: JSON.parse(content), sha: data.sha };
     } catch (error) {
-        console.error(`Error fetching ledger for ${batchId}:`, error);
+        console.error(`[meme] Error fetching ledger for ${batchId} from ${REPO_OWNER}/${REPO_NAME}:`, error.message, error.status);
         return null;
     }
 }
