@@ -44,6 +44,12 @@
       "file_path": "images/inbox/winter_2026_01/500px-KleinarlWinterwonderland.jpg",
       "status": "new",
       "added_at": "2026-01-30T16:12:38.955Z"
+    },
+    {
+      "image_id": "winter.jpg",
+      "file_path": "images/inbox/winter_2026_01/winter.jpg",
+      "status": "new",
+      "added_at": "2026-01-30T17:59:55.159Z"
     }
   ]
 }
