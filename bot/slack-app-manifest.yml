@@ -1,0 +1,36 @@
+# Slack app manifest for Auto-Humour-Bot
+# Create app: https://api.slack.com/apps → Create New App → From an app manifest
+# Paste this (or upload) and pick your workspace.
+# After creating: Slash Commands → /meme → set Request URL to your app URL (e.g. https://xxx.ngrok.io/slack/events for Bolt).
+
+display_information:
+  name: Auto-Humour-Bot
+  description: Meme batch status and usage tracking
+  background_color: "#2c2c2c"
+
+features:
+  bot_user:
+    display_name: Auto-Humour-Bot
+    always_online: true
+
+  slash_commands:
+    - command: /meme
+      url: ""
+      description: Meme batch status and mark images used
+      usage_hint: "status <batch_id> | used <batch_id> <image_id> [link]"
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - commands
+      - chat:write
+
+settings:
+  event_subscriptions:
+    request_url: ""
+  interactivity:
+    is_enabled: false
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

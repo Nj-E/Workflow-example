@@ -30,22 +30,27 @@ async function getBatchLedger(batchId) {
 }
 
 // Command: /meme status <batch_id>
-app.command('/meme', async ({ command, ack, say }) => {
+app.command('/meme', async ({ command, ack, say, respond }) => {
+    console.log('[meme] Command received:', command.text || '(no text)');
     await ack();
 
-    const args = command.text.split(' ');
-    const subCommand = args[0];
+    // Use respond() so the bot works even when not in the channel (ephemeral reply to user)
+    const reply = respond ? (msg) => respond(msg) : say;
+
+    const args = (command.text || '').trim().split(/\s+/).filter(Boolean);
+    const subCommand = args[0] || '';
     const batchId = args[1];
 
+    try {
     if (subCommand === 'status') {
         if (!batchId) {
-            await say("Usage: `/meme status <batch_id>`");
+            await reply("Usage: `/meme status <batch_id>`");
             return;
         }
 
         const ledgerInfo = await getBatchLedger(batchId);
         if (!ledgerInfo) {
-            await say(`❌ Batch \`${batchId}\` not found.`);
+            await reply(`❌ Batch \`${batchId}\` not found.`);
             return;
         }
 
@@ -54,10 +59,10 @@ app.command('/meme', async ({ command, ack, say }) => {
         const used = ledger.items.filter(i => i.status === 'used').length;
         const remaining = total - used;
 
-        await say(`📊 *Batch Status: ${batchId}*\nTotal: ${total} | Used: ${used} | Remaining: ${remaining}`);
+        await reply(`📊 *Batch Status: ${batchId}*\nTotal: ${total} | Used: ${used} | Remaining: ${remaining}`);
 
         if (remaining === 0) {
-            await say("⚠️ This batch is empty!");
+            await reply("⚠️ This batch is empty!");
         }
     }
 
@@ -67,13 +72,13 @@ app.command('/meme', async ({ command, ack, say }) => {
         const link = args[3] || 'N/A';
 
         if (!batchId || !imageId) {
-            await say("Usage: `/meme used <batch_id> <image_id> [link]`");
+            await reply("Usage: `/meme used <batch_id> <image_id> [link]`");
             return;
         }
 
         const ledgerInfo = await getBatchLedger(batchId);
         if (!ledgerInfo) {
-            await say(`❌ Batch \`${batchId}\` not found.`);
+            await reply(`❌ Batch \`${batchId}\` not found.`);
             return;
         }
 
@@ -81,12 +86,12 @@ app.command('/meme', async ({ command, ack, say }) => {
         const itemIndex = ledger.items.findIndex(i => i.image_id === imageId);
 
         if (itemIndex === -1) {
-            await say(`❌ Image \`${imageId}\` not found in batch \`${batchId}\`.`);
+            await reply(`❌ Image \`${imageId}\` not found in batch \`${batchId}\`.`);
             return;
         }
 
         if (ledger.items[itemIndex].status === 'used') {
-            await say(`ℹ️ Image \`${imageId}\` is already marked as used.`);
+            await reply(`ℹ️ Image \`${imageId}\` is already marked as used.`);
             return;
         }
 
@@ -112,16 +117,20 @@ app.command('/meme', async ({ command, ack, say }) => {
             const usedCount = ledger.items.filter(i => i.status === 'used').length;
             const remaining = ledger.items.length - usedCount;
 
-            await say(`✅ Marked \`${imageId}\` as used!\nRemaining in batch: ${remaining}`);
+            await reply(`✅ Marked \`${imageId}\` as used!\nRemaining in batch: ${remaining}`);
 
         } catch (error) {
             console.error('Error updating GitHub:', error);
-            await say(`❌ Failed to update GitHub ledger: ${error.message}`);
+            await reply(`❌ Failed to update GitHub ledger: ${error.message}`);
         }
     }
 
     else {
-        await say("Unknown command. Try `status` or `used`.");
+        await reply("Unknown command. Try `status <batch_id>` or `used <batch_id> <image_id> [link]`.");
+    }
+    } catch (err) {
+        console.error('[meme] Error:', err);
+        await reply(`❌ Error: ${err.message}`).catch(() => {});
     }
 });
 

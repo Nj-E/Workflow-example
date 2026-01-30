@@ -17,4 +17,4 @@ See **[tasks.md](tasks.md)** for the full workflow spec and design.
 cd bot && npm install && npm start
 ```
 
-Requires `.env` with Slack and (optionally) GitHub tokens — see `bot/` for config.
+**Setup:** Copy `bot/.env.example` to `bot/.env` and add your Slack and GitHub tokens (see that file for where to get them).
